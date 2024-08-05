@@ -7,10 +7,10 @@ automaticly load your project secrets and env-files to environment
 - install plugin `fisher install pat-xd/ansible-vault-env.fish`
 
 ### usage
-- automaticly load your vault and env file to the environment, when this files are in your current directory
+- automaticly load your vault and env file to the environment, if these files are in your current directory
 - create a new vault with `vault create`
     - this create a random secret safe it to your vault-key file and create an ansible-vault
-- use the functions `vault view/edit/load` functions so that the unencrypted file is not accidentally pushed into a repository
+- use the functions `vault view/edit/load` so that the unencrypted file is not accidentally pushed into a repository
 - store your public project variables in to an .env file and also load it automaticly
 
 
