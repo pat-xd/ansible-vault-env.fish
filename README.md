@@ -15,7 +15,7 @@ automaticly load your project secrets and env-files to environment
 
 
 ### customization
-set -U VAULT_PASSKEY_FILE_NAME .vault-key
-set -U VAULT_FILE_NAME .vault
-set -U CREATE_RANDOM_DEFAULT 24
-set -U ENV_FILE .env
+- set -U VAULT_PASSKEY_FILE_NAME .vault-key
+- set -U VAULT_FILE_NAME .vault
+- set -U CREATE_RANDOM_DEFAULT 24
+- set -U ENV_FILE .env
