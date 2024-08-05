@@ -1,14 +1,14 @@
 if set -q CREATE_RANDOM_DEFAULT
-    set CREATE_RANDOM_DEFAULT 24
+    set -g CREATE_RANDOM_DEFAULT 24
 end
 if set -q VAULT_FILE_NAME
-    set VAULT_FILE_NAME .vault
+    set -g VAULT_FILE_NAME .vault
 end
 if set -q VAULT_PASSKEY_FILE_NAME
-    set VAULT_PASSKEY_FILE_NAME .vault-key
+    set -g VAULT_PASSKEY_FILE_NAME .vault-key
 end
 if set -q ENV_FILE
-    set ENV_FILE .env
+    set -g ENV_FILE .env
 end
 
 function auto_activate_vault --on-variable PWD -d "auto-activate env from ansible-vault"
