@@ -1,13 +1,13 @@
-if set -q CREATE_RANDOM_DEFAULT
+if set not -q CREATE_RANDOM_DEFAULT
     set -g CREATE_RANDOM_DEFAULT 24
 end
-if set -q VAULT_FILE_NAME
+if set not -q VAULT_FILE_NAME
     set -g VAULT_FILE_NAME .vault
 end
-if set -q VAULT_PASSKEY_FILE_NAME
+if set not -q VAULT_PASSKEY_FILE_NAME
     set -g VAULT_PASSKEY_FILE_NAME .vault-key
 end
-if set -q ENV_FILE
+if set not -q ENV_FILE
     set -g ENV_FILE .env
 end
 
