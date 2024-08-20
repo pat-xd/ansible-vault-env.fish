@@ -15,7 +15,7 @@ function auto_activate_vault --on-variable PWD -d "auto-activate env from ansibl
     if test -f $VAULT_FILE_NAME -a -f $VAULT_PASSKEY_FILE_NAME
         for line in (ansible-vault view --vault-password-file $VAULT_PASSKEY_FILE_NAME $VAULT_FILE_NAME | string split '\n')
                # Skip empty lines
-               if test -z "$line"
+               if test -z "$line" -o (string sub -s 1 -l 1 $line) = "#"
                    continue
                end
 
