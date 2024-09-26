@@ -18,13 +18,12 @@ function auto_activate_vault --on-variable PWD -d "auto-activate env from ansibl
                if test -z "$line" -o (string sub -s 1 -l 1 $line) = "#"
                    continue
                end
-
-               # Split the line into key and value
-               set -l key (echo $line | cut -d':' -f1)
-               set -l value (echo $line | cut -d':' -f2-)
-
-               # Set the environment variable
-               set -xg $key $value
+               if echo $line | grep -qE '[a-zA-Z_0-9]+([:=])[ \'\"]?[a-zA-Z_0-9]+[ \'\"]?$'
+                   set deli $(echo $line | grep -Eo '[a-zA-Z_0-9]+([:=])[ \'\"]?[a-zA-Z_0-9]+[ \'\"]?$' | grep -Eo '[:=]')
+                   set key (echo $line | grep -oE '[a-zA-Z_0-9]+([:=])[ \'\"]?[a-zA-Z_0-9]+[ \'\"]?$' | cut -d "$deli" -f 1)
+                   set value (echo $line | cut -d "$deli" -f 2 | sed 's/"//g' | sed s#\'##g)
+                   set -xg $key "$value"
+               end
            end
     end
 end
@@ -60,7 +59,18 @@ function vault -d "create, view, load or edit an ansible-vault"
 end
 
 function auto_activate_env --on-variable PWD -d "auto-activate env if exists on change-directory"
-    if test -f .env
-        source .env
+    if test -f $ENV_FILE
+        for line in (cat $ENV_FILE)
+           # Skip empty lines
+           if test -z "$line" -o (string sub -s 1 -l 1 $line) = "#"
+               continue
+           end
+           if echo $line | grep -qE '[a-zA-Z_0-9]+([:=])[ \'\"]?[a-zA-Z_0-9]+[ \'\"]?$'
+               set deli $(echo $line | grep -Eo '[a-zA-Z_0-9]+([:=])[ \'\"]?[a-zA-Z_0-9]+[ \'\"]?$' | grep -Eo '[:=]')
+               set key (echo $line | grep -oE '[a-zA-Z_0-9]+([:=])[ \'\"]?[a-zA-Z_0-9]+[ \'\"]?$' | cut -d "$deli" -f 1)
+               set value (echo $line | cut -d "$deli" -f 2 | sed 's/"//g' | sed s#\'##g)
+               set -xg $key "$value"
+           end
+        end
     end
 end
