@@ -66,10 +66,11 @@ function auto_activate_env --on-variable PWD -d "auto-activate env if exists on 
            if test -z "$line" -o (string sub -s 1 -l 1 $line) = "#"
                continue
            end
-           if echo $line | grep -qE '[a-zA-Z_0-9]+([:=])[ \'\"]?[a-zA-Z_0-9]+[ \'\"]?$'
-               set deli $(echo $line | grep -Eo '[a-zA-Z_0-9]+([:=])[ \'\"]?[a-zA-Z_0-9]+[ \'\"]?$' | grep -Eo '[:=]')
-               set key (echo $line | grep -oE '[a-zA-Z_0-9]+([:=])[ \'\"]?[a-zA-Z_0-9]+[ \'\"]?$' | cut -d "$deli" -f 1)
-               set value (echo $line | cut -d "$deli" -f 2 | sed 's/"//g' | sed s#\'##g)
+           if echo $line | grep -Eq '^[a-zA-Z_0-9]+[ \t]*[:=][ \t]*.*'
+               set deli $(echo $line | grep -Eo '([:=])' | grep -Eo '[:=]' | head -n 1)
+               set key (echo $line | grep -oE '^[a-zA-Z_0-9-]+' | string trim)
+               # set value (echo $line | cut -d "$deli" -f 2 | sed 's/"//g' | sed 's/ //g'| sed s#\'##g)
+               set value (echo $line | string split -m1 "$deli" | tail -n 1 | string trim | string trim -c '"\'')
                set -xg $key "$value"
            end
         end
