@@ -14,46 +14,49 @@ end
 function auto_activate_vault --on-variable PWD -d "auto-activate env from ansible-vault"
     if test -f $VAULT_FILE_NAME -a -f $VAULT_PASSKEY_FILE_NAME
         for line in (ansible-vault view --vault-password-file $VAULT_PASSKEY_FILE_NAME $VAULT_FILE_NAME | string split '\n')
-               # Skip empty lines
-               if test -z "$line" -o (string sub -s 1 -l 1 $line) = "#"
-                   continue
-               end
-               if echo $line | grep -Eq '^[a-zA-Z_0-9]+[ \t]*[:=][ \t]*.*'
-                   set deli $(echo $line | grep -Eo '([:=])' | grep -Eo '[:=]' | head -n 1)
-                   set key (echo $line | grep -oE '^[a-zA-Z_0-9-]+' | string trim)
-                   # set value (echo $line | cut -d "$deli" -f 2 | sed 's/"//g' | sed 's/ //g'| sed s#\'##g)
-                   set value (echo $line | string split -m1 "$deli" | tail -n 1 | string trim | string trim -c '"\'')
-                   set -xg $key "$value"
-               end
-           end
+            # Skip empty lines
+            if test -z "$line" -o (string sub -s 1 -l 1 $line) = "#"
+                continue
+            end
+            if echo $line | grep -Eq '^[a-zA-Z_0-9]+[ \t]*[:=][ \t]*.*'
+                set deli $(echo $line | grep -Eo '([:=])' | grep -Eo '[:=]' | head -n 1)
+                set key (echo $line | grep -oE '^[a-zA-Z_0-9-]+' | string trim)
+                # set value (echo $line | cut -d "$deli" -f 2 | sed 's/"//g' | sed 's/ //g'| sed s#\'##g)
+                set value (echo $line | string split -m1 "$deli" | tail -n 1 | string trim | string trim -c '"\'')
+                set -xg $key "$value"
+            end
+        end
     end
 end
 
 function create_random -d"create a random string"
     set -l len $CREATE_RANDOM_DEFAULT
-    if count $argv > 0
+    if count $argv >0
         set len $argv[1]
     end
     set random_string (openssl rand -base64 $len | tr -dc 'a-zA-Z0-9' | head -c $len)
-           echo $random_string
+    echo $random_string
 end
 
 function vault -d "create, view, load or edit an ansible-vault"
     switch $argv[1]
-        case "create"
+        case create
             if test -f $VAULT_FILE_NAME
                 echo "$VAULT_FILE_NAME exist; remove it first"
                 exit 1
             end
             echo "create ansible-vault"
             set secret (create_random)
-            echo $secret > $VAULT_PASSKEY_FILE_NAME
+            echo $secret >$VAULT_PASSKEY_FILE_NAME
             ansible-vault create --vault-password-file $VAULT_PASSKEY_FILE_NAME $VAULT_FILE_NAME
-        case "view"
+            if test -d .git
+                grep -qxF '.vaultkey' .gitignore 2>/dev/null; or echo .vaultkey >>.gitignore
+            end
+        case view
             ansible-vault view --vault-password-file $VAULT_PASSKEY_FILE_NAME $VAULT_FILE_NAME
-        case "edit"
+        case edit
             ansible-vault edit --vault-password-file $VAULT_PASSKEY_FILE_NAME $VAULT_FILE_NAME
-        case "load"
+        case load
             auto_activate_vault
     end
 
@@ -62,17 +65,17 @@ end
 function auto_activate_env --on-variable PWD -d "auto-activate env if exists on change-directory"
     if test -f $ENV_FILE
         for line in (cat $ENV_FILE)
-           # Skip empty lines
-           if test -z "$line" -o (string sub -s 1 -l 1 $line) = "#"
-               continue
-           end
-           if echo $line | grep -Eq '^[a-zA-Z_0-9]+[ \t]*[:=][ \t]*.*'
-               set deli $(echo $line | grep -Eo '([:=])' | grep -Eo '[:=]' | head -n 1)
-               set key (echo $line | grep -oE '^[a-zA-Z_0-9-]+' | string trim)
-               # set value (echo $line | cut -d "$deli" -f 2 | sed 's/"//g' | sed 's/ //g'| sed s#\'##g)
-               set value (echo $line | string split -m1 "$deli" | tail -n 1 | string trim | string trim -c '"\'')
-               set -xg $key "$value"
-           end
+            # Skip empty lines
+            if test -z "$line" -o (string sub -s 1 -l 1 $line) = "#"
+                continue
+            end
+            if echo $line | grep -Eq '^[a-zA-Z_0-9]+[ \t]*[:=][ \t]*.*'
+                set deli $(echo $line | grep -Eo '([:=])' | grep -Eo '[:=]' | head -n 1)
+                set key (echo $line | grep -oE '^[a-zA-Z_0-9-]+' | string trim)
+                # set value (echo $line | cut -d "$deli" -f 2 | sed 's/"//g' | sed 's/ //g'| sed s#\'##g)
+                set value (echo $line | string split -m1 "$deli" | tail -n 1 | string trim | string trim -c '"\'')
+                set -xg $key "$value"
+            end
         end
     end
 end
